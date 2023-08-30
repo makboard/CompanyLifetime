@@ -1,0 +1,20 @@
+---
+paths:
+    egrul: 'data_raw/egrul/'
+    msp: 'data_raw/msp/'
+    features_region: 'data_raw/rosstat'
+    features_extra: 'data_raw/msp_xml'
+    pkls: 'data/pkls/'
+    data: 'data/'
+
+files:
+    file_egrul: 'companies_egrul.pkl'
+    file_msp: 'companies_msp.pkl'
+    companies: 'companies.pkl'
+    companies_feat: 'companies_feat.pkl'
+    regions: 'regions.pkl'
+    features: 'features.xlsx'
+    extra_features: 'extra_features.pkl'
+
+foundation_start: 2000
+foundation_end: 2022

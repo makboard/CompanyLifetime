@@ -1,0 +1,37 @@
+---
+paths:
+  pkls: 'data/pkls/'
+  models: 'data/models'
+
+files:
+  companies_feat: 'companies_feat.pkl'
+  metrics: 'metrics.pkl'
+  lr_model: 'lr.pkl'
+  ridge_model: 'ridge.pkl'
+  xgb_model: 'xgb.pkl'
+
+xgboost:
+  subsample: 1.0
+  reg_lambda: 0.5
+  reg_alpha: 0
+  n_estimators: 200
+  min_child_weight: 5
+  max_depth: 7
+  learning_rate: 0.2
+  gamma: 0.5
+  colsample_bytree: 0
+
+catboost:
+  random_strength: 0.1
+  learning_rate: 0.1
+  l2_leaf_reg: 1
+  iterations: 200
+  depth: 8
+  bagging_temperature: 1
+
+linear_regression:
+  fit_intercept: True
+
+ridge_regression:
+  solver: 'sparse_cg'
+  alpha: 1

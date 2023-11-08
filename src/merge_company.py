@@ -5,7 +5,7 @@ from tqdm import tqdm
 import sys
 import os
 sys.path.append(os.getcwd())
-from src.pickle_manager import open_pickle, save_pickle
+from src.pickle_manager import open_pickle, save_pickle, open_parquet, save_parquet
 
 
 def get_date(reg_date: pd.Timestamp,
@@ -31,8 +31,8 @@ def merge_data(cfg: DictConfig) -> None:
     '''Merge data from EGRUL and MSP datasets'''
     tqdm.pandas()
     # Open pkl files
-    df_egrul = open_pickle(cfg.paths.pkls, cfg.files.file_egrul)
-    df_msp = open_pickle(cfg.paths.pkls, cfg.files.file_msp)
+    df_egrul = open_parquet(cfg.paths.pkls, cfg.files.file_egrul)
+    df_msp = open_parquet(cfg.paths.pkls, cfg.files.file_msp)
 
     # Apply datetime format for dates columns
     df_msp['Дата включения в реестр'] = pd.to_datetime(df_msp['Дата включения в реестр'], dayfirst=True)
@@ -63,12 +63,12 @@ def merge_data(cfg: DictConfig) -> None:
                                     'Дата включения в реестр', 'Дата исключения из реестра',
                                     'min_num', 'max_num', 'end_date'], inplace=True)
     
-    save_pickle(cfg.paths.pkls, cfg.files.companies, companies_closed)
+    save_parquet(cfg.paths.pkls, cfg.files.companies, companies_closed)
 
 
 def region_list(cfg: DictConfig) -> None:
     '''Extract region codes and coresponding region names'''
-    data = open_pickle(cfg.paths.pkls, cfg.files.companies)
+    data = open_parquet(cfg.paths.pkls, cfg.files.companies)
     
     regions = pd.DataFrame(columns=['Name'])
 
@@ -80,7 +80,7 @@ def region_list(cfg: DictConfig) -> None:
     regions.sort_index(inplace=True)
 
     # Save dataframe
-    save_pickle(cfg.paths.pkls, cfg.files.regions, regions)
+    save_parquet(cfg.paths.pkls, cfg.files.regions, regions)
 
 if __name__ == "__main__":
     merge_data()

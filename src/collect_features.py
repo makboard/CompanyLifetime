@@ -14,7 +14,7 @@ from src.pickle_manager import open_pickle, save_pickle, open_parquet, save_parq
 def collect_regional(cfg: DictConfig) -> tuple:
     """Collect regional features"""
     print("Collecting regional features...")
-    regions = open_pickle(cfg.paths.pkls, cfg.files.regions)
+    regions = open_parquet(cfg.paths.parquets, cfg.files.regions)
     years = np.arange(cfg.foundation_start, cfg.foundation_end)
     years = [str(year) for year in years]
     n_years = len(years)
@@ -185,7 +185,7 @@ def collect_extra_features(cfg: DictConfig) -> pd.DataFrame:
     extra_feat = extra_feat.astype(
         {"ИНН": "int64", "ССЧР": "int8", "КатСубМСП": "int8"}
     )
-    save_pickle(cfg.paths.pkls, "extra_features.pkl", extra_feat)
+    save_parquet(cfg.paths.parquets, cfg.files.extra_features, extra_feat)
 
     return extra_feat
 
@@ -196,12 +196,12 @@ def add_features(cfg: DictConfig) -> None:
     region_features, tags_order, codes = collect_regional(cfg)
 
     # Load features from .xml files
-    # extra_features = collect_extra_features(cfg)
-    # Load same features from existing .pkl file
-    extra_features = open_parquet(cfg.paths.pkls, cfg.files.extra_features)
+    extra_features = collect_extra_features(cfg)
+    # Load same features from existing .parquet file
+    extra_features = open_parquet(cfg.paths.parquets, cfg.files.extra_features)
 
     print("Stacking all features...")
-    df = open_parquet(cfg.paths.pkls, cfg.files.companies)
+    df = open_parquet(cfg.paths.parquets, cfg.files.companies)
     df = df.progress_apply(
         lambda row: apply_regional(row, region_features, tags_order, codes), axis=1
     )
@@ -210,7 +210,7 @@ def add_features(cfg: DictConfig) -> None:
     result = df.merge(extra_features, on="ИНН", how="left")
 
     # Save
-    save_parquet(cfg.paths.pkls, cfg.files.companies_feat, result)
+    save_parquet(cfg.paths.parquets, cfg.files.companies_feat, result)
 
 
 # def merge_features(cfg:DictConfig):

@@ -23,11 +23,11 @@ From repo folder run:
 There are 2 options:
 
 * Inside the container run `.sh` (*not implemented yet*) with raw company data (`.xls`, `.xlsx`, `.csv` file formats) from google drive, unpack it, delete the archived data.
-* Inside the container run `sh download.sh` -- to download preprocessed company data (`.pkl` file format) from google drive, unpack it, delete the archived data.
+* Inside the container run `sh download.sh` -- to download preprocessed company data (`.parquet` file format) from google drive, unpack it, delete the archived data.
 
 ## Executing program
 
-* preprocess.py handles raw data. Thus, it works after loading data with option 1. Output file `data/pkls/companies_feat.pkl` contains all companies mentioned in MSP registry and closed up to date (i.e. companies with finite 'lifetime' feature serving as a target variable).
-This step requires `data_raw` folder. However you may skip it and use `.pkl` files loaded to folder `data` with option 2.
-* train.py performs the regression analysis with several algorythms and writes pretrained models and their metrics in `data/models/metrics.pkl` file.
+* preprocess.py handles raw data. Thus, it works after loading data with option 1. Output file `data/parquet/companies_feat.parquet` contains all companies mentioned in MSP registry and closed up to date (i.e. companies with finite 'lifetime' feature serving as a target variable).
+This step requires `data_raw` folder. However you may skip it and use `.parquet` files loaded to folder `data` with option 2.
+* train.py performs the regression analysis with several algorythms and writes pretrained models and their metrics in `data/models/metrics.parquet` file.
 * run.py (*not implemented yet*) predicts lifetime for a company with parameters listed in `config\predict.yaml`

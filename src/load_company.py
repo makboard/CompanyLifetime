@@ -27,7 +27,7 @@ def num_to_date(n: int) -> str:
 
 
 def load_egrul(cfg: DictConfig) -> pd.DataFrame:
-    """Collects data from all .csv files with egrul data and creates one .pkl
+    """Collects data from all .csv files with egrul data and creates one .parquet
     Remove OGRN duplicats
     """
     print("Loading EGRUL...")
@@ -76,7 +76,7 @@ def load_egrul(cfg: DictConfig) -> pd.DataFrame:
 
 
 def load_msp(cfg: DictConfig) -> pd.DataFrame:
-    """Collects data from all .xlsx files with msp data and creates one .pkl"""
+    """Collects data from all .xlsx files with msp data and creates one .parquet"""
     # Define the list of column names to select
     print("Loading MSP...")
     columns_to_select = [
@@ -114,9 +114,9 @@ def load_msp(cfg: DictConfig) -> pd.DataFrame:
 
 def load_data(cfg: DictConfig):
     df_egrul = load_egrul(cfg)
-    save_parquet(cfg.paths.pkls, cfg.files.file_egrul, df_egrul)
+    save_parquet(cfg.paths.parquets, cfg.files.file_egrul, df_egrul)
     df_msp = load_msp(cfg)
-    save_parquet(cfg.paths.pkls, cfg.files.file_msp, df_msp)
+    save_parquet(cfg.paths.parquets, cfg.files.file_msp, df_msp)
 
 
 if __name__ == "__main__":

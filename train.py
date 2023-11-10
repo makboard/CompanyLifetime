@@ -79,6 +79,7 @@ def train_test(
     print("Final data shape:", data.shape)
 
     data.drop(data.loc[data["Основной вид деятельности"] == "na"].index, inplace=True)
+    data.drop(data.loc[data["Основной вид деятельности"] == "No"].index, inplace=True)
     y = data["lifetime"].values
     X = data.drop(["Наименование / ФИО", "ОГРН", "ИНН", "reg_date", "lifetime"], axis=1)
 
@@ -128,8 +129,16 @@ def run_train(cfg: DictConfig):
     )
     metrics_dict = ridge_regression(cfg, X_train, y_train, X_test, y_test, metrics_dict)
     metrics_dict = xgb_regression(cfg, X_train, y_train, X_test, y_test, metrics_dict)
-    print(metrics_dict)
-    save_pickle(cfg.paths.models, cfg.files.metrics, metrics_dict)
+    models = []
+    frames = []
+
+    for model_id, d in metrics_dict.items():
+        models.append(model_id)
+        frames.append(pd.DataFrame.from_dict(d, orient="index"))
+    metrics_table = pd.concat(frames, keys=models)
+    metrics_table = metrics_table.reset_index()
+    print(metrics_table)
+    save_parquet(cfg.paths.models, cfg.files.metrics, metrics_table)
 
 
 if __name__ == "__main__":

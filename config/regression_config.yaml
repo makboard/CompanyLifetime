@@ -1,11 +1,11 @@
 ---
 paths:
-  pkls: 'data/pkls/'
+  parquets: 'data/parquet/'
   models: 'data/models'
 
 files:
-  companies_feat: 'companies_feat.pkl'
-  metrics: 'metrics.pkl'
+  companies_feat: 'companies_feat.parquet'
+  metrics: 'metrics.parquet'
   lr_model: 'lr.pkl'
   ridge_model: 'ridge.pkl'
   xgb_model: 'xgb.pkl'

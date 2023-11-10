@@ -219,4 +219,5 @@ def add_features(cfg: DictConfig) -> None:
 
 
 if __name__ == "__main__":
-    add_features(cfg)
+    # add_features(cfg)
+    pass

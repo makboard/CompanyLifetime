@@ -4,7 +4,7 @@ paths:
     msp: 'data_raw/msp/'
     features_region: 'data_raw/rosstat'
     features_extra: 'data_raw/msp_xml'
-    pkls: 'data/pkls/'
+    parquets: 'data/parquet/'
     data: 'data/'
 
 files:

@@ -67,7 +67,10 @@ def merge_data(cfg: DictConfig) -> None:
     # Fill 'na' in "Основной вид деятельности"
     merged_ogrn["Основной вид деятельности"] = merged_ogrn.progress_apply(
         lambda row: get_activity(merged_ogrn, row["ИНН"])
-        if row["Основной вид деятельности"] == "na"
+        if (
+            (row["Основной вид деятельности"] == "na")
+            or (row["Основной вид деятельности"] == "No")
+        )
         else row["Основной вид деятельности"],
         axis=1,
     )

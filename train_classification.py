@@ -16,7 +16,6 @@ import warnings
 from src.pickle_manager import save_pickle, open_parquet
 from src.classification_models import (
     logistic_regression_classification,
-    multinomial_naive_bayes_classification,
     random_forest_classification,
     xgb_classification,
 )
@@ -138,19 +137,28 @@ def train_test(
 @hydra.main(
     version_base=None,
     config_path=os.path.join(os.getcwd(), "config"),
-    config_name="classification_config.yaml",
-)
+    config_name="classification_config.yaml")
 def run_train(cfg: DictConfig):
     metrics_dict = {}
     X_train, X_test, y_train, y_test = train_test(cfg)
-    # metrics_dict = logistic_regression_classification(
-    #     cfg, X_train, y_train, X_test, y_test, metrics_dict
-    # )
+    metrics_dict = logistic_regression_classification(
+        cfg, X_train, y_train, X_test, y_test, metrics_dict
+    )
     metrics_dict = random_forest_classification(
         cfg, X_train, y_train, X_test, y_test, metrics_dict
     )
-    metrics_dict = xgb_classification(cfg, X_train, y_train, X_test, y_test, metrics_dict)
-    print(metrics_dict)
+    metrics_dict = xgb_classification(
+        cfg, X_train, y_train, X_test, y_test, metrics_dict
+    )
+    models = []
+    frames = []
+
+    for model_id, d in metrics_dict.items():
+        models.append(model_id)
+        frames.append(pd.DataFrame.from_dict(d, orient="index"))
+    metrics_table = pd.concat(frames, keys=models)
+    metrics_table = metrics_table.reset_index()
+    print(metrics_table)
     save_pickle(cfg.paths.models, cfg.files.metrics, metrics_dict)
 
 

@@ -1,5 +1,4 @@
 from sklearn.linear_model import LogisticRegression
-from sklearn.naive_bayes import MultinomialNB
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import RandomizedSearchCV
 from sklearn.model_selection import StratifiedKFold
@@ -8,7 +7,7 @@ import xgboost
 import numpy as np
 import pandas as pd
 
-from omegaconf import DictConfig
+from omegaconf import OmegaConf, DictConfig
 import sys
 import os
 
@@ -61,16 +60,31 @@ def classification_metrics_print(
     return metrics_dict
 
 
-def random_search_grid_cv(classifier, params, X, y):
+def random_search_grid_cv(classifier, params, X, y) -> dict:
+    """
+    Perform random search grid cross-validation.
+    
+    Args:
+    classifier: Classifier instance.
+    params: Hyperparameter grid.
+    X: Feature data.
+    y: Target data.
+
+    Returns:
+    Dictionary of best parameters.
+    """
+    params = OmegaConf.to_container(params, resolve=True)
+    
     skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
     grid_search = RandomizedSearchCV(
         estimator=classifier,
         param_distributions=params,
-        n_iter=1,
+        n_iter=15,
         cv=skf,
-        verbose=2,
+        verbose=3,
         random_state=42,
-        n_jobs=-1,
+        # n_jobs=-1,
+        scoring='f1_macro',
     )
     grid_search.fit(X, y)
     return grid_search.best_params_
@@ -86,13 +100,12 @@ def logistic_regression_classification(
 ) -> dict:
     """Fit Logistic Regression for classification"""
     print("Fitting Logistic Regression...")
-    classifier = LogisticRegression(**cfg.classifiers.log_reg.default_params)
+    default_params = cfg.classifiers.log_reg.default_params
+    classifier = LogisticRegression(**default_params)
     if cfg.enable_optimization:
-        classifier = LogisticRegression(
-            **random_search_grid_cv(
-                classifier, cfg.classifiers.log_reg.grid_params, X_train, y_train
-            )
-        )
+        grid_params = cfg.classifiers.log_reg.grid_params
+        best_params = random_search_grid_cv(classifier, grid_params, X_train, y_train)
+        classifier.set_params(**best_params)
     classifier.fit(X_train, y_train)
     train_predictions = classifier.predict(X_train)
     test_predictions = classifier.predict(X_test)
@@ -115,7 +128,12 @@ def random_forest_classification(
 ) -> dict:
     """Fit Random Forest Classifier for classification"""
     print("Fitting Random Forest Classifier...")
-    classifier = RandomForestClassifier(**cfg.classifiers.rf.default_params)
+    default_params = cfg.classifiers.rf.default_params
+    classifier = RandomForestClassifier(**default_params)
+    if cfg.enable_optimization:
+        grid_params = cfg.classifiers.rf.grid_params
+        best_params = random_search_grid_cv(classifier, grid_params, X_train, y_train)
+        classifier.set_params(**best_params)
     classifier.fit(X_train, y_train)
     train_predictions = classifier.predict(X_train)
     test_predictions = classifier.predict(X_test)
@@ -138,7 +156,12 @@ def xgb_classification(
 ) -> dict:
     """Fit XGBoostClassifier for classification"""
     print("Fitting XGBoost Classifier...")
-    classifier = xgboost.XGBClassifier(**cfg.classifiers.xgboost.default_params)
+    default_params = cfg.classifiers.xgboost.default_params
+    classifier = xgboost.XGBClassifier(**default_params)
+    if cfg.enable_optimization:
+        grid_params = cfg.classifiers.xgboost.grid_params
+        best_params = random_search_grid_cv(classifier, grid_params, X_train, y_train)
+        classifier.set_params(**best_params)
     classifier.fit(X_train, y_train)
     train_predictions = classifier.predict(X_train)
     test_predictions = classifier.predict(X_test)

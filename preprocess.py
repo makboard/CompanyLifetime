@@ -14,9 +14,9 @@ from src.collect_features import add_features
     config_name="dataset_config.yaml",
 )
 def run_load(cfg: DictConfig):
-    load_data(cfg)
-    merge_data(cfg)
-    region_list(cfg)
+    # load_data(cfg)
+    # merge_data(cfg)
+    # region_list(cfg)
     add_features(cfg)
 
 

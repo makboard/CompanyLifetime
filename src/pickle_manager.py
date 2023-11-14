@@ -5,6 +5,8 @@ import pandas as pd
 
 def save_pickle(path: str, file_name: str, data: any) -> None:
     """Save data as pickle file"""
+    if not os.path.exists(path):
+        os.makedirs(path)
     with open(os.path.join(path, file_name), "wb") as fp:
         pickle.dump(data, fp)
 
@@ -18,6 +20,8 @@ def open_pickle(path: str, file_name: str) -> any:
 
 def save_parquet(path: str, file_name: str, data: pd.DataFrame) -> None:
     """Save data as pickle file"""
+    if not os.path.exists(path):
+        os.makedirs(path)
     data.to_parquet(os.path.join(path, file_name))
 
 

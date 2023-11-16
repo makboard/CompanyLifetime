@@ -184,7 +184,7 @@ def collect_extra_features(cfg: DictConfig) -> pd.DataFrame:
     if not bad_index.empty:
         extra_feat = extra_feat.drop(index=[bad_index.index[0]])
     extra_feat = extra_feat.astype(
-        {"ИНН": "int64", "ССЧР": "int8", "КатСубМСП": "int8"}
+        {"ИНН": "int64", "ССЧР": "int32", "КатСубМСП": "int8"}
     )
     save_parquet(cfg.paths.parquets, cfg.files.extra_features, extra_feat)
 
@@ -197,7 +197,7 @@ def add_features(cfg: DictConfig) -> None:
     region_features, tags_order, codes = collect_regional(cfg)
 
     # Load features from .xml files
-    # extra_features = collect_extra_features(cfg)
+    extra_features = collect_extra_features(cfg)
     # Load same features from existing .parquet file
     extra_features = open_parquet(cfg.paths.parquets, cfg.files.extra_features)
 

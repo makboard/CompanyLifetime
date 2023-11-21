@@ -111,8 +111,8 @@ def apply_regional(
     else:
         region_line = [code == region for code in codes]
         region_index = np.where(region_line)[0][0]
-        # array_extract = region_features[region_index, reg_year:closed_year, :].mean(0)
-        array_extract = region_features[region_index, reg_year, :]
+        array_extract = region_features[region_index, reg_year:closed_year, :].mean(0)
+        # array_extract = region_features[region_index, reg_year, :]
         array_extract[array_extract == 0] = np.nan
     row_add = pd.Series(array_extract, index=tags_order)
     row = pd.concat([row, row_add])
@@ -197,7 +197,7 @@ def add_features(cfg: DictConfig) -> None:
     region_features, tags_order, codes = collect_regional(cfg)
 
     # Load features from .xml files
-    extra_features = collect_extra_features(cfg)
+    # extra_features = collect_extra_features(cfg)
     # Load same features from existing .parquet file
     extra_features = open_parquet(cfg.paths.parquets, cfg.files.extra_features)
 

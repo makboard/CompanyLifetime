@@ -6,12 +6,10 @@ paths:
 test:
   categories: 
     - 0
-    - 6
     - 12
     - 24
-    - 36
     - 48
-    - 60
+    - 120
   metrics: 'metrics_differentiated.parquet'
 
 

@@ -5,11 +5,11 @@ paths:
   models: 'data/models'
 
 files:
-  companies_feat: 'companies_feat.parquet'
-  metrics: 'metrics_classification.pkl'
-  log_reg_model: 'log_reg.pkl'
-  rf_classifier_model: 'rf_classifier.pkl'
-  xgb_classifier_model: 'xgb_classifier.pkl'
+  companies_feat: 'companies_feat_1.parquet'
+  metrics: 'metrics_classification_1.pkl'
+  log_reg_model: 'log_reg_1.pkl'
+  rf_classifier_model: 'rf_classifier_1.pkl'
+  xgb_classifier_model: 'xgb_classifier_1.pkl'
 
 enable_optimization: True
 

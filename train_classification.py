@@ -42,22 +42,23 @@ def make_indices(X: pd.DataFrame) -> tuple[list, list, list]:
     return binary_columns, categorical_columns, numerical_columns
 
 
-def preprocess_X(X: pd.DataFrame) -> pd.DataFrame:
+def preprocess_X(X: pd.DataFrame, scaler = None, enc = None) -> pd.DataFrame:
     """Perform scaling and encoding for particular columns"""
     binary_columns, categorical_columns, numerical_columns = make_indices(X)
-
-    # Scale numerical
-    scaler = preprocessing.StandardScaler(with_mean=0)
-    X_num = X[numerical_columns]
-    X_num = scaler.fit_transform(X_num)
-    X_num = pd.DataFrame(X_num, columns=numerical_columns)
-
-    # Encode categorical
-    enc = preprocessing.OneHotEncoder(handle_unknown="ignore")
     X_cat = X[categorical_columns]
-    X_cat = enc.fit_transform(X_cat)
+    X_num = X[numerical_columns]
+    if scaler == None:
+        # Scale numerical
+        scaler = preprocessing.StandardScaler(with_mean=0)
+        scaler.fit(X_num)
+    X_num = pd.DataFrame(scaler.transform(X_num), columns=numerical_columns)
+
+    if enc == None:
+    # Encode categorical
+        enc = preprocessing.OneHotEncoder(handle_unknown="ignore")
+        enc.fit(X_cat)
     X_cat = pd.DataFrame(
-        X_cat.toarray().astype(np.int8), columns=enc.get_feature_names_out()
+        enc.transform(X_cat).toarray().astype(np.int8), columns=enc.get_feature_names_out()
     )
 
     # Concat all columns
@@ -70,7 +71,7 @@ def preprocess_X(X: pd.DataFrame) -> pd.DataFrame:
         axis=1,
     )
 
-    return X
+    return X, scaler, enc
 
 def classify_lifetime(lifetime) -> Literal[0, 1, 2, 3, 4] | None:
     if lifetime <= 12:
@@ -126,11 +127,13 @@ def train_test(
     X["Наличие лицензий"] = (X["Наличие лицензий"] == "Да").astype(int)
     X["КатСубМСП"] = X["КатСубМСП"].astype(int)
 
-    X = preprocess_X(X)
     X_train, X_test, y_train, y_test = train_test_split(
         X, y, test_size=0.2, random_state=123, stratify=y
     )
-
+    X_train, scaler, enc = preprocess_X(X_train)
+    X_test, _, _ = preprocess_X(X_test, scaler, enc)
+    save_pickle(cfg.paths.pkls, cfg.files.num_scaler, scaler)
+    save_pickle(cfg.paths.pkls, cfg.files.cat_enc, enc)
     return X_train, X_test, y_train, y_test
 
 
@@ -141,15 +144,17 @@ def train_test(
 def run_train(cfg: DictConfig):
     metrics_dict = {}
     X_train, X_test, y_train, y_test = train_test(cfg)
-    metrics_dict = logistic_regression_classification(
+    save_pickle(cfg.paths.pkls, cfg.files.processed_dataset, data=(X_train, X_test, y_train, y_test))
+    metrics_dict = xgb_classification(
         cfg, X_train, y_train, X_test, y_test, metrics_dict
     )
     metrics_dict = random_forest_classification(
         cfg, X_train, y_train, X_test, y_test, metrics_dict
     )
-    metrics_dict = xgb_classification(
+    metrics_dict = logistic_regression_classification(
         cfg, X_train, y_train, X_test, y_test, metrics_dict
     )
+    
     models = []
     frames = []
 

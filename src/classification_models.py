@@ -79,7 +79,7 @@ def random_search_grid_cv(classifier, params, X, y) -> dict:
     grid_search = RandomizedSearchCV(
         estimator=classifier,
         param_distributions=params,
-        n_iter=15,
+        n_iter=25,
         cv=skf,
         verbose=3,
         random_state=42,

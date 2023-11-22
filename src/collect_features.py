@@ -99,7 +99,7 @@ def apply_regional(
     # Assign for samples with late reg_year the smaller value (Rosstat data'2021 is the last available)
     if reg_year >= 22:
         reg_year = 21
-
+    closed_year = reg_year + int(row["lifetime"] // 12) + 1
     # Find region line and corresponding index
     region = row["Регион"][:2]
 
@@ -111,7 +111,8 @@ def apply_regional(
     else:
         region_line = [code == region for code in codes]
         region_index = np.where(region_line)[0][0]
-        array_extract = region_features[region_index, reg_year, :]
+        array_extract = region_features[region_index, reg_year:closed_year, :].mean(0)
+        # array_extract = region_features[region_index, reg_year, :]
         array_extract[array_extract == 0] = np.nan
     row_add = pd.Series(array_extract, index=tags_order)
     row = pd.concat([row, row_add])
@@ -183,7 +184,7 @@ def collect_extra_features(cfg: DictConfig) -> pd.DataFrame:
     if not bad_index.empty:
         extra_feat = extra_feat.drop(index=[bad_index.index[0]])
     extra_feat = extra_feat.astype(
-        {"ИНН": "int64", "ССЧР": "int8", "КатСубМСП": "int8"}
+        {"ИНН": "int64", "ССЧР": "int32", "КатСубМСП": "int8"}
     )
     save_parquet(cfg.paths.parquets, cfg.files.extra_features, extra_feat)
 
@@ -196,7 +197,7 @@ def add_features(cfg: DictConfig) -> None:
     region_features, tags_order, codes = collect_regional(cfg)
 
     # Load features from .xml files
-    extra_features = collect_extra_features(cfg)
+    # extra_features = collect_extra_features(cfg)
     # Load same features from existing .parquet file
     extra_features = open_parquet(cfg.paths.parquets, cfg.files.extra_features)
 
@@ -219,4 +220,5 @@ def add_features(cfg: DictConfig) -> None:
 
 
 if __name__ == "__main__":
-    add_features(cfg)
+    # add_features(cfg)
+    pass

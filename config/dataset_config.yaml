@@ -4,14 +4,14 @@ paths:
     msp: 'data_raw/msp/'
     features_region: 'data_raw/rosstat'
     features_extra: 'data_raw/msp_xml'
-    pkls: 'data/pkls/'
+    parquets: 'data/parquet/'
     data: 'data/'
 
 files:
     file_egrul: 'companies_egrul.parquet'
     file_msp: 'companies_msp.parquet'
     companies: 'companies.parquet'
-    companies_feat: 'companies_feat.parquet'
+    companies_feat: 'companies_feat_1.parquet'
     regions: 'regions.parquet'
     features: 'features.xlsx'
     extra_features: 'extra_features.parquet'

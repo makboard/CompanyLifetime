@@ -3,9 +3,19 @@ paths:
   parquets: 'data/parquet/'
   models: 'data/models'
 
+test:
+  categories: 
+    - 0
+    - 12
+    - 24
+    - 48
+    - 120
+  metrics: 'metrics_differentiated.parquet'
+
+
 files:
-  companies_feat: 'companies_feat.parquet'
-  metrics: 'metrics.parquet'
+  companies_feat: 'companies_feat_2.parquet'
+  metrics: 'metrics_2.parquet'
   lr_model: 'lr.pkl'
   ridge_model: 'ridge.pkl'
   xgb_model: 'xgb.pkl'

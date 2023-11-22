@@ -2,6 +2,7 @@ import os
 import sys
 import warnings
 from typing import Literal, Tuple, List
+import uncertainty_toolbox as uct
 
 import numpy as np
 import pandas as pd
@@ -199,6 +200,52 @@ def run_regression(cfg: DictConfig, suffix: str):
     print(metrics_table)
     save_parquet(cfg.paths.models, cfg.files.metrics, metrics_table)
 
+def run_calibration(cfg):
+    X_train, X_test, y_train, y_test = train_test(cfg)
+    predictions_dict = {}
+    get_predictions(
+        cfg,
+        X_train,
+        y_train,
+        X_test,
+        y_test,
+        paths_models,
+        predictions_dict
+    )
+    models_regression = [k.split("_")[0] for k in predictions_dict.keys() if k.split("_")[1].split('.')[0] == 'regressor']
+    models_classifier = [k.split("_")[0] for k in predictions_dict.keys() if k.split("_")[1].split('.')[0] == 'classifier']
+    for model in models_regression:
+        for stage in ('train', 'test'):
+            pred_mean = predictions_dict[model + "_" + stage]
+            pred_std = (v - v.mean()) ** 2
+            te_y = y_train if stage == 'train' else y_test
+            uct.viz.plot_calibration(pred_mean, pred_std, te_y)
+            plt.savefig(os.path.join(cfg.path.models, "calibration_curve_before_", model, "_", stage, ".png"))
+        
+            if stage == 'train': #better to recalibrate on validation subset
+                recal_pred_mean = predictions_dict[model + "_" + stage]
+                recal_pred_std = (pred_mean - pred_mean.mean()) ** 2
+                recal_y = y_train
+                exp_props, obs_props = uct.metrics_calibration.get_proportion_lists_vectorized(
+                    recal_pred_mean, recal_pred_std, recal_y,
+                )
+
+                # Train a recalibration model.
+                recal_model = uct.recalibration.iso_recal(exp_props, obs_props)
+                save_pickle(cfg.path.models, "iso_calibrator_" + model, recal_model) 
+            # Get the expected props and observed props using the new recalibrated model
+            te_recal_exp_props, te_recal_obs_props = uct.metrics_calibration.get_proportion_lists_vectorized(
+                pred_mean, pred_std, te_y, recal_model=recal_model
+            )  
+
+            # Show the updated average calibration plot
+            uct.viz.plot_calibration(pred_mean, pred_std, te_y,
+                                    exp_props=te_recal_exp_props,
+                                    obs_props=te_recal_obs_props)
+            plt.savefig(os.path.join(cfg.path.models, "calibration_curve_after_", model, "_", stage, ".png"))
+    for model in models_classifier:
+        #?????????
+        pass
 
 def update_filename(file_name, suffix):
     base, ext = os.path.splitext(file_name)
@@ -224,7 +271,8 @@ def run_train(cfg: DictConfig):
         run_regression(cfg, suffix)
     if cfg.get("run_classification", False):
         run_classification(cfg, suffix)
-
+    if cfg.get("run_calibration", True):
+        
 
 if __name__ == "__main__":
     sys.argv.append("hydra.run.dir=out/${now:%Y-%m-%d}/${now:%H-%M-%S}")

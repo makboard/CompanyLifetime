@@ -23,6 +23,10 @@ files:
   xgb_regressor_model: 'xgb_regressor.pkl'
   catboost_regressor_model: 'catboost_regressor.pkl'
 
+run_calibration:
+  run: true
+  plots: true
+
 test:
   categories: 
     - 0

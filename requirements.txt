@@ -19,5 +19,6 @@ omegaconf==2.3.0
 dask==2023.6.0
 openpyxl==3.0.10
 pyarrow==11.0.0
+uncertainty-toolbox==0.1.1
 black
 nbstripout

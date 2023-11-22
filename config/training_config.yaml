@@ -1,6 +1,6 @@
 ---
 run_regression: true
-run_classification: false
+run_classification: true
 use_mean_for_region_features: true
 enable_optimization: false
 

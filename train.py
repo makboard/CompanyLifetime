@@ -187,8 +187,8 @@ def run_regression(cfg: DictConfig, suffix: str):
     metrics_dict = linear_regression(
         cfg, X_train, y_train, X_test, y_test, metrics_dict
     )
-    # metrics_dict = ridge_regression(cfg, X_train, y_train, X_test, y_test, metrics_dict)
-    # metrics_dict = xgb_regression(cfg, X_train, y_train, X_test, y_test, metrics_dict)
+    metrics_dict = ridge_regression(cfg, X_train, y_train, X_test, y_test, metrics_dict)
+    metrics_dict = xgb_regression(cfg, X_train, y_train, X_test, y_test, metrics_dict)
     models = []
     frames = []
     for model_id, d in metrics_dict.items():

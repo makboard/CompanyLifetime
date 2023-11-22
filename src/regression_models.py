@@ -78,6 +78,25 @@ def differentiated_metrics(
             )
 
 
+def get_predictions(
+    cfg: DictConfig,
+    X_train: pd.DataFrame,
+    y_train: pd.DataFrame,
+    X_test: pd.DataFrame,
+    y_test: pd.DataFrame,
+    paths_models: list,
+    predictions_dict: dict,
+) -> None:
+    for path_model in paths_models:
+        regressor = open_pickle(cfg.paths.models, path_model)
+        train_predictions = regressor.predict(X_train)
+        test_predictions = regressor.predict(X_test)
+        key = path_model.split("/")[-1].split(".pkl")[0]
+        predictions_dict[key + "_train"] = train_predictions
+        predictions_dict[key + "_test"] = test_predictions
+    return predictions_dict
+
+
 def linear_regression(
     cfg: DictConfig,
     X_train: pd.DataFrame,

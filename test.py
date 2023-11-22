@@ -21,6 +21,7 @@ from src.regression_models import (
     ridge_regression,
     xgb_regression,
     differentiated_metrics,
+    get_predictions,
 )
 
 
@@ -128,8 +129,12 @@ def train_test(
 )
 def run_test(cfg: DictConfig):
     metrics_dict = {}
+    predictions_dict = {}
     X_train, X_test, y_train, y_test = train_test(cfg)
     paths_models = ["lr.pkl", "ridge.pkl", "xgb.pkl"]
+    get_predictions(
+        cfg, X_train, y_train, X_test, y_test, paths_models, predictions_dict
+    )
     differentiated_metrics(
         cfg, X_train, y_train, X_test, y_test, paths_models, metrics_dict
     )

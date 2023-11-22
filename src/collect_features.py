@@ -8,7 +8,7 @@ import xml.etree.ElementTree as ET
 from tqdm import tqdm
 
 sys.path.append(os.getcwd())
-from src.pickle_manager import open_pickle, save_pickle, open_parquet, save_parquet
+from src.pickle_manager import open_parquet, save_parquet
 
 
 def collect_regional(cfg: DictConfig) -> tuple:
@@ -89,7 +89,11 @@ def collect_regional(cfg: DictConfig) -> tuple:
 
 
 def apply_regional(
-    row: pd.Series, region_features: list, tags_order: list, codes: list
+    cfg: DictConfig,
+    row: pd.Series,
+    region_features: list,
+    tags_order: list,
+    codes: list,
 ) -> pd.Series:
     "Makes a slice of regional features for particular sample"
     # global region_features, tags_order, codes
@@ -111,8 +115,13 @@ def apply_regional(
     else:
         region_line = [code == region for code in codes]
         region_index = np.where(region_line)[0][0]
-        array_extract = region_features[region_index, reg_year:closed_year, :].mean(0)
-        # array_extract = region_features[region_index, reg_year, :]
+        # Use configuration to determine which array_extract method to use
+        if cfg.use_mean_for_region_features:
+            array_extract = region_features[region_index, reg_year:closed_year, :].mean(
+                0
+            )
+        else:
+            array_extract = region_features[region_index, reg_year, :]
         array_extract[array_extract == 0] = np.nan
     row_add = pd.Series(array_extract, index=tags_order)
     row = pd.concat([row, row_add])
@@ -196,15 +205,16 @@ def add_features(cfg: DictConfig) -> None:
     tqdm.pandas()
     region_features, tags_order, codes = collect_regional(cfg)
 
-    # Load features from .xml files
-    # extra_features = collect_extra_features(cfg)
-    # Load same features from existing .parquet file
-    extra_features = open_parquet(cfg.paths.parquets, cfg.files.extra_features)
+    # Use configuration to decide how to load extra features
+    if cfg.load_extra_features_from_xml:
+        extra_features = collect_extra_features(cfg)
+    else:
+        extra_features = open_parquet(cfg.paths.parquets, cfg.files.extra_features)
 
     print("Stacking all features...")
     df = open_parquet(cfg.paths.parquets, cfg.files.companies)
     df = df.progress_apply(
-        lambda row: apply_regional(row, region_features, tags_order, codes), axis=1
+        lambda row: apply_regional(cfg, row, region_features, tags_order, codes), axis=1
     )
 
     # Extra features
@@ -214,11 +224,5 @@ def add_features(cfg: DictConfig) -> None:
     save_parquet(cfg.paths.parquets, cfg.files.companies_feat, result)
 
 
-# def merge_features(cfg:DictConfig):
-#     '''Collect and add regional and additional features'''
-#     add_features(cfg)
-
-
 if __name__ == "__main__":
-    # add_features(cfg)
     pass

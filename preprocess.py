@@ -1,6 +1,6 @@
 import sys, os
 import hydra
-from omegaconf import DictConfig, OmegaConf, ListConfig
+from omegaconf import DictConfig
 
 sys.path.append(os.getcwd())
 from src.load_company import load_data
@@ -14,10 +14,19 @@ from src.collect_features import add_features
     config_name="dataset_config.yaml",
 )
 def run_load(cfg: DictConfig):
-    # load_data(cfg)
-    # merge_data(cfg)
-    # region_list(cfg)
-    add_features(cfg)
+    if cfg.use_mean_for_region_features:
+        cfg.files.companies_feat = "companies_feat_avg.parquet"
+    else:
+        cfg.files.companies_feat = "companies_feat_first_year.parquet"
+
+    if cfg.get("run_load_data", False):
+        load_data(cfg)
+    if cfg.get("run_merge_data", False):
+        merge_data(cfg)
+    if cfg.get("run_region_list", False):
+        region_list(cfg)
+    if cfg.get("run_add_features", False):
+        add_features(cfg)
 
 
 if __name__ == "__main__":

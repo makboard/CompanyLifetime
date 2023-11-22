@@ -1,4 +1,13 @@
 ---
+run_load_data: false
+run_merge_data: false
+run_region_list: false
+run_add_features: false
+use_mean_for_region_features: true
+load_extra_features_from_xml: false
+foundation_start: 2000
+foundation_end: 2022
+
 paths:
     egrul: 'data_raw/egrul/'
     msp: 'data_raw/msp/'
@@ -11,10 +20,7 @@ files:
     file_egrul: 'companies_egrul.parquet'
     file_msp: 'companies_msp.parquet'
     companies: 'companies.parquet'
-    companies_feat: 'companies_feat_1.parquet'
+    companies_feat: 'companies_feat.parquet'
     regions: 'regions.parquet'
     features: 'features.xlsx'
     extra_features: 'extra_features.parquet'
-
-foundation_start: 2000
-foundation_end: 2022

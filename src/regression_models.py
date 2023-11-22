@@ -1,10 +1,12 @@
 from sklearn.linear_model import LinearRegression, Ridge
+from sklearn.model_selection import RandomizedSearchCV
+from sklearn.model_selection import StratifiedKFold
 from sklearn import metrics
 import xgboost
 import numpy as np
 import pandas as pd
 
-from omegaconf import DictConfig
+from omegaconf import OmegaConf, DictConfig
 import sys
 import os
 
@@ -78,6 +80,35 @@ def differentiated_metrics(
             )
 
 
+
+def random_search_grid_cv(regressor, params, X, y) -> dict:
+    """
+    Perform random search grid cross-validation.
+
+    Args:
+    regressor: Regressor instance.
+    params: Hyperparameter grid.
+    X: Feature data.
+    y: Target data.
+
+    Returns:
+    Dictionary of best parameters.
+    """
+    params = OmegaConf.to_container(params, resolve=True)
+
+    skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+    grid_search = RandomizedSearchCV(
+        estimator=regressor,
+        param_distributions=params,
+        n_iter=25,
+        cv=skf,
+        verbose=3,
+        random_state=42,
+        scoring="f1_macro",
+    )
+    grid_search.fit(X, y)
+    return grid_search.best_params_
+
 def get_predictions(
     cfg: DictConfig,
     X_train: pd.DataFrame,
@@ -97,6 +128,7 @@ def get_predictions(
     return predictions_dict
 
 
+
 def linear_regression(
     cfg: DictConfig,
     X_train: pd.DataFrame,
@@ -107,7 +139,12 @@ def linear_regression(
 ) -> dict:
     """Fit Linear Regression"""
     print("Fitting linear regression...")
-    regressor = LinearRegression(**cfg.linear_regression)
+    default_params = cfg.regressors.linear_regression.default_params
+    regressor = LinearRegression(**default_params)
+    if cfg.enable_optimization:
+        grid_params = cfg.regressors.linear_regression.grid_params
+        best_params = random_search_grid_cv(regressor, grid_params, X_train, y_train)
+        regressor.set_params(**best_params)
     regressor.fit(X_train, y_train)
     train_predictions = regressor.predict(X_train)
     test_predictions = regressor.predict(X_test)
@@ -130,7 +167,12 @@ def ridge_regression(
 ) -> dict:
     """Fit Ridge Regression"""
     print("Fitting ridge regression...")
-    regressor = Ridge(**cfg.ridge_regression)
+    default_params = cfg.regressors.ridge_regression.default_params
+    regressor = Ridge(**default_params)
+    if cfg.enable_optimization:
+        grid_params = cfg.regressors.ridge_regression.grid_params
+        best_params = random_search_grid_cv(regressor, grid_params, X_train, y_train)
+        regressor.set_params(**best_params)
     regressor.fit(X_train, y_train)
     train_predictions = regressor.predict(X_train)
     test_predictions = regressor.predict(X_test)
@@ -153,13 +195,17 @@ def xgb_regression(
 ) -> dict:
     """Fit XGBoostRegressor"""
     print("Fitting XGB regression...")
-    regressor = xgboost.XGBRegressor(**cfg.xgboost)
-
+    default_params = cfg.regressors.xgboost.default_params
+    regressor = xgboost.XGBRegressor(**default_params)
+    if cfg.enable_optimization:
+        grid_params = cfg.regressors.xgboost.grid_params
+        best_params = random_search_grid_cv(regressor, grid_params, X_train, y_train)
+        regressor.set_params(**best_params)
     regressor.fit(X_train, y_train)
     test_predictions = regressor.predict(X_test)
     train_predictions = regressor.predict(X_train)
 
-    save_pickle(cfg.paths.models, cfg.files.xgb_model, regressor)
+    save_pickle(cfg.paths.models, cfg.files.xgb_regressor_model, regressor)
     key = "xgb"
     metrics_dict = metrics_print(
         y_train, train_predictions, y_test, test_predictions, metrics_dict, key

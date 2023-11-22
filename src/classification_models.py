@@ -63,7 +63,7 @@ def classification_metrics_print(
 def random_search_grid_cv(classifier, params, X, y) -> dict:
     """
     Perform random search grid cross-validation.
-    
+
     Args:
     classifier: Classifier instance.
     params: Hyperparameter grid.
@@ -74,17 +74,16 @@ def random_search_grid_cv(classifier, params, X, y) -> dict:
     Dictionary of best parameters.
     """
     params = OmegaConf.to_container(params, resolve=True)
-    
+
     skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
     grid_search = RandomizedSearchCV(
         estimator=classifier,
         param_distributions=params,
-        n_iter=15,
+        n_iter=25,
         cv=skf,
         verbose=3,
         random_state=42,
-        # n_jobs=-1,
-        scoring='f1_macro',
+        scoring="f1_macro",
     )
     grid_search.fit(X, y)
     return grid_search.best_params_

@@ -85,28 +85,45 @@ def merge_data(cfg: DictConfig) -> None:
     merged_ogrn = merged_ogrn.sort_values("reg_date", ascending=False).drop_duplicates(
         subset=["ОГРН"], keep="first"
     )
+    if cfg.get("save_open_companies", False):
+        companies_open = merged_ogrn[merged_ogrn["Дата исключения из реестра"].isna()]
 
-    companies_closed = merged_ogrn[merged_ogrn["Дата исключения из реестра"].notna()]
+        # Drop few columns
+        companies_open.drop(
+            columns=[
+                "capital",
+                "Дата исключения из реестра",
+                "min_num",
+                "max_num",
+                "end_date",
+            ],
+            inplace=True,
+        )
 
-    # Drop few columns
-    companies_closed.drop(
-        columns=[
-            "ogrn",
-            "opf_id",
-            "full_name",
-            "okved_id",
-            "inn",
-            "capital",
-            "Дата включения в реестр",
-            "Дата исключения из реестра",
-            "min_num",
-            "max_num",
-            "end_date",
-        ],
-        inplace=True,
-    )
+        save_parquet(cfg.paths.parquets, cfg.files.companies, companies_open)
+        
+    else:
+        companies_closed = merged_ogrn[merged_ogrn["Дата исключения из реестра"].notna()]
 
-    save_parquet(cfg.paths.parquets, cfg.files.companies, companies_closed)
+        # Drop few columns
+        companies_closed.drop(
+            columns=[
+                "ogrn",
+                "opf_id",
+                "full_name",
+                "okved_id",
+                "inn",
+                "capital",
+                "Дата включения в реестр",
+                "Дата исключения из реестра",
+                "min_num",
+                "max_num",
+                "end_date",
+            ],
+            inplace=True,
+        )
+
+        save_parquet(cfg.paths.parquets, cfg.files.companies, companies_closed)
 
 
 def region_list(cfg: DictConfig) -> None:

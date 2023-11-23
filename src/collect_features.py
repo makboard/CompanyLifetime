@@ -103,7 +103,7 @@ def apply_regional(
     # Assign for samples with late reg_year the smaller value (Rosstat data'2021 is the last available)
     if reg_year >= 22:
         reg_year = 21
-    closed_year = reg_year + int(row["lifetime"] // 12) + 1
+    
     # Find region line and corresponding index
     region = row["Регион"][:2]
 
@@ -117,6 +117,7 @@ def apply_regional(
         region_index = np.where(region_line)[0][0]
         # Use configuration to determine which array_extract method to use
         if cfg.use_mean_for_region_features:
+            closed_year = reg_year + int(row["lifetime"] // 12) + 1
             array_extract = region_features[region_index, reg_year:closed_year, :].mean(
                 0
             )

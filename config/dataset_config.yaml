@@ -2,9 +2,10 @@
 run_load_data: false
 run_merge_data: false
 run_region_list: false
-run_add_features: false
-use_mean_for_region_features: true
+run_add_features: true
+use_mean_for_region_features: false
 load_extra_features_from_xml: false
+save_open_companies: false
 foundation_start: 2000
 foundation_end: 2022
 

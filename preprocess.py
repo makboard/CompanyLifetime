@@ -16,6 +16,8 @@ from src.collect_features import add_features
 def run_load(cfg: DictConfig):
     if cfg.use_mean_for_region_features:
         cfg.files.companies_feat = "companies_feat_avg.parquet"
+    elif cfg.save_open_companies:
+        cfg.files.companies_feat = "companies_feat_open.parquet"
     else:
         cfg.files.companies_feat = "companies_feat_first_year.parquet"
 

@@ -1,0 +1,1 @@
+2023-11-23_12-47-28 - Prediction for the input 1236900001084: class 1, probabilities [0.16, 0.83, 0.01, 0.00, 0.00]

@@ -1,7 +1,7 @@
 ---
 run_regression: true
 run_classification: true
-use_mean_for_region_features: true
+use_mean_for_region_features: false
 enable_optimization: false
 
 paths:
@@ -15,6 +15,7 @@ files:
   num_scaler: 'num_scaler.pkl'
   cat_enc: 'cat_encoder.pkl'
   metrics: 'metrics.parquet'
+  column_order: 'column_order.pkl'
   log_reg_model: 'log_reg.pkl'
   rf_classifier_model: 'rf_classifier.pkl'
   xgb_classifier_model: 'xgb_classifier.pkl'

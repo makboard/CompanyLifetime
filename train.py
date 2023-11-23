@@ -137,6 +137,7 @@ def train_test(
     X_test, _, _ = preprocess_features(X_test, scaler, encoder)
     save_pickle(cfg.paths.pkls, cfg.files.num_scaler, scaler)
     save_pickle(cfg.paths.pkls, cfg.files.cat_enc, encoder)
+    save_pickle(cfg.paths.pkls, cfg.files.column_order, X_train.columns.tolist())
     return X_train, X_test, y_train, y_test
 
 
@@ -145,6 +146,7 @@ def run_classification(cfg: DictConfig, suffix: str):
     cfg.files.num_scaler = f"num_scaler_classification_{suffix}.pkl"
     cfg.files.cat_enc = f"cat_enc_classification_{suffix}.pkl"
     cfg.files.metrics = f"metrics_classification_{suffix}.pkl"
+    cfg.files.column_order = f"column_order_classification_{suffix}.pkl"
     metrics_dict = {}
     X_train, X_test, y_train, y_test = train_test(cfg, 'classification')
     save_pickle(
@@ -177,6 +179,7 @@ def run_regression(cfg: DictConfig, suffix: str):
     cfg.files.num_scaler = f"num_scaler_regression_{suffix}.pkl"
     cfg.files.cat_enc = f"cat_enc_regression_{suffix}.pkl"
     cfg.files.metrics = f"metrics_regression_{suffix}.pkl"
+    cfg.files.column_order = f"column_order_regression_{suffix}.pkl"
     metrics_dict = {}
     X_train, X_test, y_train, y_test = train_test(cfg)
     save_pickle(

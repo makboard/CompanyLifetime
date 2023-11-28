@@ -109,7 +109,7 @@ def load_data(cfg: DictConfig):
     Load data, scaler, encoder, and column order from specified file paths in the configuration.
     """
     try:
-        df = open_parquet(cfg.paths.parquets, cfg.files.companies_feat):
+        df = open_parquet(cfg.paths.parquets, cfg.files.companies_feat)
         df = open_parquet(cfg.paths.parquets, cfg.files.companies_feat)
         scaler = open_pickle(cfg.paths.pkls, cfg.files.num_scaler)
         encoder = open_pickle(cfg.paths.pkls, cfg.files.cat_enc)
@@ -195,7 +195,7 @@ def run_classification(cfg: DictConfig):
             logging.info(prediction_results.head())
             if cfg.get("save_results", False):
                 timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-                output_file = f"{cfg.files.files.df_prediction}_{timestamp}.pkl"
+                output_file = f"{cfg.files.df_prediction.replace('.parquet', '')}_{timestamp}.parquet"
                 os.makedirs(cfg.paths.resutls, exist_ok=True)
                 save_parquet(cfg.paths.resutls, output_file, prediction_results)
                 logging.info(f"Results saved to {output_file}")

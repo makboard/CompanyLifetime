@@ -126,6 +126,7 @@ env/
 venv/
 ENV/
 data/
+results/
 out/
 data_raw/
 env.bak/

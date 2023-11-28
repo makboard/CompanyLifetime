@@ -1,8 +1,8 @@
 ---
-run_regression: true
+run_regression: false
 run_classification: true
 use_mean_for_region_features: false
-enable_optimization: false
+enable_optimization: true
 
 paths:
   parquets: 'data/parquet/'
@@ -12,13 +12,13 @@ paths:
 files:
   companies_feat: 'companies_feat.parquet'
   processed_dataset: 'processed_dataset.pkl'
-  num_scaler: 'num_scaler.pkl'
-  cat_enc: 'cat_encoder.pkl'
-  metrics: 'metrics.parquet'
-  column_order: 'column_order.pkl'
-  log_reg_model: 'log_reg.pkl'
-  rf_classifier_model: 'rf_classifier.pkl'
-  xgb_classifier_model: 'xgb_classifier.pkl'
+  num_scaler: 'num_scaler_3.pkl'
+  cat_enc: 'cat_encoder_3.pkl'
+  metrics: 'metrics_3.parquet'
+  column_order: 'column_order_3.pkl'
+  log_reg_model: 'log_reg_3.pkl'
+  rf_classifier_model: 'rf_classifier_3.pkl'
+  xgb_classifier_model: 'xgb_classifier_3.pkl'
   lr_model: 'lr.pkl'
   ridge_model: 'ridge.pkl'
   xgb_regressor_model: 'xgb_regressor.pkl'

@@ -72,18 +72,14 @@ def preprocess_features(X: pd.DataFrame, scaler=None, encoder=None) -> pd.DataFr
     return X, scaler, encoder
 
 
-def classify_lifetime(lifetime) -> Literal[0, 1, 2, 3, 4] | None:
+def classify_lifetime(lifetime) -> Literal[0, 1, 2] | None:
     """Classify lifetime into categories."""
-    if lifetime <= 12:
+    if lifetime <= 24:
         return 0
-    elif 12 < lifetime <= 24:
+    elif 24 < lifetime <= 120:
         return 1
-    elif 24 < lifetime <= 48:
-        return 2
-    elif 48 < lifetime <= 120:
-        return 3
     elif lifetime > 120:
-        return 4
+        return 2
 
 
 def train_test(

@@ -80,7 +80,6 @@ def differentiated_metrics(
             )
 
 
-
 def random_search_grid_cv(regressor, params, X, y) -> dict:
     """
     Perform random search grid cross-validation.
@@ -109,6 +108,7 @@ def random_search_grid_cv(regressor, params, X, y) -> dict:
     grid_search.fit(X, y)
     return grid_search.best_params_
 
+
 def get_predictions(
     cfg: DictConfig,
     X_train: pd.DataFrame,
@@ -126,7 +126,6 @@ def get_predictions(
         predictions_dict[key + "_train"] = train_predictions
         predictions_dict[key + "_test"] = test_predictions
     return predictions_dict
-
 
 
 def linear_regression(

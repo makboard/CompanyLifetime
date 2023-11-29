@@ -24,6 +24,8 @@ def get_activity(df: pd.DataFrame, INN: int) -> str:
         by=["Основной вид деятельности"], ascending=True
     )
     activity = df_mini["Основной вид деятельности"].values[0]
+    if activity in ["No", "na"]:
+        return pd.NA
     return activity
 
 
@@ -101,9 +103,11 @@ def merge_data(cfg: DictConfig) -> None:
         )
 
         save_parquet(cfg.paths.parquets, cfg.files.companies, companies_open)
-        
+
     else:
-        companies_closed = merged_ogrn[merged_ogrn["Дата исключения из реестра"].notna()]
+        companies_closed = merged_ogrn[
+            merged_ogrn["Дата исключения из реестра"].notna()
+        ]
 
         # Drop few columns
         companies_closed.drop(

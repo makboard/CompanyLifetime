@@ -1,8 +1,8 @@
 ---
-run_regression: false
-run_classification: true
+run_regression: true
+run_classification: false
 use_mean_for_region_features: false
-enable_optimization: true
+enable_optimization: false
 
 paths:
   parquets: 'data/parquet/'
@@ -27,9 +27,7 @@ files:
 test:
   categories: 
     - 0
-    - 12
     - 24
-    - 48
     - 120
   metrics: 'metrics_differentiated.parquet'
 

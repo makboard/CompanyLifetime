@@ -1,8 +1,8 @@
 ---
-predict_by_ogrn: false
+predict_by_ogrn: true
 run_regression: false
 run_classification: true
-save_results: true
+save_results: false
 
 paths:
   parquets: 'data/parquet/'

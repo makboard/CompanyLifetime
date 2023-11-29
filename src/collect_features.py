@@ -103,7 +103,7 @@ def apply_regional(
     # Assign for samples with late reg_year the smaller value (Rosstat data'2021 is the last available)
     if reg_year >= 22:
         reg_year = 21
-    
+
     # Find region line and corresponding index
     region = row["Регион"][:2]
 

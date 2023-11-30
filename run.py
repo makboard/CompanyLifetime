@@ -103,16 +103,49 @@ def predict_batch_classification(df, model, column_order, scaler, encoder):
         logging.info(f"An error occurred during batch prediction: {e}")
         return pd.DataFrame()
 
+def predict_batch_regression(df, model, column_order, scaler, encoder):
+    """
+    Applies prediction on a batch (entire DataFrame).
+    """
+    try:
+        if df.isnull().values.any():
+            logging.info("Some features are NaN and will be filled with 0.")
+            df = df.fillna(0)
+        processed_df, ogrns = process_row(df)
+        processed_df = preprocess_features(processed_df, scaler, encoder)[0]
+        missing_columns = set(column_order) - set(processed_df.columns)
+        if missing_columns:
+            logging.info(f"Missing features columns: {missing_columns}")
+            return pd.DataFrame()
+
+        predictions = model.predict(processed_df)
+        results = pd.DataFrame(
+            {
+                "OGRN": ogrns,
+                "Predicted Class": predictions,
+            }
+        )
+        return results
+    except Exception as e:
+        logging.info(f"An error occurred during batch prediction: {e}")
+        return pd.DataFrame()
 
 def load_data(cfg: DictConfig):
     """
     Load data, scaler, encoder, and column order from specified file paths in the configuration.
     """
     try:
-        df = open_parquet(cfg.paths.parquets, cfg.files.companies_feat):
         df = open_parquet(cfg.paths.parquets, cfg.files.companies_feat)
-        scaler = open_pickle(cfg.paths.pkls, cfg.files.num_scaler)
-        encoder = open_pickle(cfg.paths.pkls, cfg.files.cat_enc)
+        df = open_parquet(cfg.paths.parquets, cfg.files.companies_feat)
+        if cfg.files.num_scaler is None:
+            scaler = cfg.files.num_scaler
+        else:
+            scaler = open_pickle(cfg.paths.pkls, cfg.files.num_scaler)
+        if cfg.files.cat_enc is None:
+            encoder = cfg.files.cat_enc
+        else:
+            encoder = open_pickle(cfg.paths.pkls, cfg.files.cat_enc)
+        
         column_order = open_pickle(cfg.paths.pkls, cfg.files.column_order)
     except FileNotFoundError as e:
         logging.error(f"File not found: {e}")
@@ -195,7 +228,7 @@ def run_classification(cfg: DictConfig):
             logging.info(prediction_results.head())
             if cfg.get("save_results", False):
                 timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-                output_file = f"{cfg.files.files.df_prediction}_{timestamp}.pkl"
+                output_file = f"{cfg.files.files.df_prediction}_{'classification'}_{timestamp}.parquet"
                 os.makedirs(cfg.paths.resutls, exist_ok=True)
                 save_parquet(cfg.paths.resutls, output_file, prediction_results)
                 logging.info(f"Results saved to {output_file}")
@@ -209,7 +242,23 @@ def run_regression(cfg: DictConfig):
     To be implemented in the future.
     """
     df, scaler, encoder, column_order = load_data(cfg)
-    raise NotImplementedError("The run_regression function is not implemented yet.")
+    model = open_pickle(cfg.paths.models, cfg.files.regression_model)
+    logging.info("Collecting predictions for the entire DataFrame.")
+    prediction_results = predict_batch_regression(
+        df, model, column_order, scaler, encoder
+    )
+    if not prediction_results.empty:
+        logging.info(prediction_results.head())
+        if cfg.get("save_results", False):
+            timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+            output_file = f"{cfg.files.files.df_prediction}_{'regression'}_{timestamp}.parquet"
+            os.makedirs(cfg.paths.resutls, exist_ok=True)
+            save_parquet(cfg.paths.resutls, output_file, prediction_results)
+            logging.info(f"Results saved to {output_file}")
+    else:
+        logging.error("Failed to generate predictions.")
+    if cfg.estimate_metrics:
+        pass
 
 
 @hydra.main(

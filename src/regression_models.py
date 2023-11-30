@@ -1,5 +1,6 @@
 from sklearn.linear_model import LinearRegression, Ridge
 from sklearn.model_selection import RandomizedSearchCV
+from catboost import CatBoostRegressor
 from sklearn.model_selection import StratifiedKFold
 from sklearn import metrics
 import xgboost
@@ -184,6 +185,32 @@ def ridge_regression(
     )
     return metrics_dict
 
+def catboost_regression(
+    cfg: DictConfig,
+    X_train: pd.DataFrame,
+    y_train: pd.DataFrame,
+    X_test: pd.DataFrame,
+    y_test: pd.DataFrame,
+    metrics_dict: dict,
+) -> dict:
+    """Catboost Regression"""
+    print("Fitting catboost regression...")
+    default_params = cfg.regressors.catboost.default_params
+    regressor = CatBoostRegressor(**default_params)
+    if cfg.enable_optimization:
+        grid_params = cfg.regressors.catboost.grid_params
+        best_params = random_search_grid_cv(regressor, grid_params, X_train, y_train)
+        regressor.set_params(**best_params)
+    regressor.fit(X_train, y_train)
+    train_predictions = regressor.predict(X_train)
+    test_predictions = regressor.predict(X_test)
+
+    save_pickle(cfg.paths.models, cfg.files.catboost_model, regressor)
+    key = "catboost_regressor"
+    metrics_dict = metrics_print(
+        y_train, train_predictions, y_test, test_predictions, metrics_dict, key
+    )
+    return metrics_dict
 
 def xgb_regression(
     cfg: DictConfig,

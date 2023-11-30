@@ -1,8 +1,9 @@
 ---
 predict_by_ogrn: false
-run_regression: false
-run_classification: true
+run_regression: true
+run_classification: false
 save_results: true
+estimate_metrics: true
 
 paths:
   parquets: 'data/parquet/'
@@ -12,10 +13,10 @@ paths:
 
 files:
   companies_feat: 'companies_feat_open.parquet'
-  num_scaler: 'num_scaler_classification_first_year.pkl'
-  cat_enc: 'cat_enc_classification_first_year.pkl'
+  num_scaler: null #'num_scaler_classification_first_year.pkl'
+  cat_enc: null #'cat_enc_classification_first_year.pkl'
   column_order: 'column_order_classification_first_year.pkl'
   column_order_regression: 'column_order_regression_first_year.pkl'
-  regression_model: 'xgb_regressor_first_year.pkl'
   classification_model: 'xgb_classifier_first_year.pkl'
+  regression_model: 'ridge.pkl'
   df_prediction: 'predicts.pkl'

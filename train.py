@@ -15,8 +15,9 @@ from src.classification_models import (
     logistic_regression_classification,
     random_forest_classification,
     xgb_classification,
+    catboost_classification,
 )
-from src.regression_models import linear_regression, ridge_regression, xgb_regression
+from src.regression_models import linear_regression, ridge_regression, xgb_regression, catboost_regression
 
 # Configure warnings
 warnings.filterwarnings("ignore")
@@ -154,6 +155,9 @@ def run_classification(cfg: DictConfig, suffix: str):
         cfg.files.processed_dataset,
         data=(X_train, X_test, y_train, y_test),
     )
+    metrics_dict = catboost_classification(
+        cfg, X_train, y_train, X_test, y_test, metrics_dict
+    )
     metrics_dict = xgb_classification(
         cfg, X_train, y_train, X_test, y_test, metrics_dict
     )
@@ -190,8 +194,10 @@ def run_regression(cfg: DictConfig, suffix: str):
     metrics_dict = linear_regression(
         cfg, X_train, y_train, X_test, y_test, metrics_dict
     )
+    metrics_dict = catboost_regression(cfg, X_train, y_train, X_test, y_test, metrics_dict)
     metrics_dict = ridge_regression(cfg, X_train, y_train, X_test, y_test, metrics_dict)
     metrics_dict = xgb_regression(cfg, X_train, y_train, X_test, y_test, metrics_dict)
+    
     models = []
     frames = []
     for model_id, d in metrics_dict.items():

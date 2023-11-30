@@ -138,10 +138,10 @@ def train_test(
     dataset_manager = DatasetManager()
 
     X_train, X_test, y_train, y_test = dataset_manager.fit_transform(
-        X, y, classification
+        df=X, y=y, classification=classification
     )
 
-    dataset_manager.save_instance(os.path.join(cfg.paths, cfg.files.data_manager))
+    dataset_manager.save_instance(os.path.join(cfg.paths.pkls, cfg.files.data_manager))
     return X_train, X_test, y_train, y_test
 
 
@@ -194,10 +194,8 @@ def update_config_filenames(
     """
     for key in [
         "processed_dataset",
-        "num_scaler",
-        "cat_enc",
+        "data_manager",
         "metrics",
-        "column_order",
     ]:
         cfg.files[key] = f"{key}_{model_type}_{suffix}.pkl"
     return cfg

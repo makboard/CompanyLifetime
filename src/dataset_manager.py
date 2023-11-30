@@ -150,7 +150,7 @@ class DatasetManager:
         x_train_preprocessed = pd.DataFrame(transformed_x_train, columns=feature_names)
         x_test_preprocessed = pd.DataFrame(transformed_x_test, columns=feature_names)
 
-        self.column_order = X_train_preprocessed.columns.tolist()
+        self.column_order = x_train_preprocessed.columns.tolist()
 
         return x_train_preprocessed, x_test_preprocessed, y_train, y_test
 

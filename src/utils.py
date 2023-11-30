@@ -9,8 +9,9 @@ from sklearn import preprocessing
 from sklearn.model_selection import train_test_split
 
 from .pickle_manager import save_pickle, open_parquet, save_parquet
+from .dataset_manager import DatasetManager
 from .classification_models import (
-    logistic_regression_classification,
+    logistic_regression,
     random_forest_classification,
     xgb_classification,
 )
@@ -89,35 +90,16 @@ def preprocess_features(
     return df_preprocessed, scaler, encoder
 
 
-def classify_lifetime(lifetime: int) -> Optional[Literal[0, 1, 2]]:
-    """
-    Classifies lifetime into categories.
-
-    Parameters:
-    lifetime (int): Lifetime value to classify.
-
-    Returns:
-    Optional[Literal[0, 1, 2]]: Classified category or None.
-    """
-    if lifetime <= 24:
-        return 0
-    elif 24 < lifetime <= 120:
-        return 1
-    elif lifetime > 120:
-        return 2
-    return None
-
-
 def train_test(
     cfg: DictConfig,
-    model_type: str = "regression",
+    classification: bool = False,
 ) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """
     Performs train/test split on the dataset.
 
     Parameters:
     cfg (DictConfig): Configuration object.
-    model_type (str): Specifies the model type. Defaults to "regression".
+    classification (bool): Specifies the model type. Defaults to False.
 
     Returns:
     Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]: Train and test splits for
@@ -130,10 +112,7 @@ def train_test(
     data = data.dropna()
     logging.info(f"Final data shape: {data.shape}")
 
-    if model_type != "regression":
-        data["lifetime"] = data["lifetime"].apply(classify_lifetime)
-
-    y = data["lifetime"].values
+    y = data["lifetime"]
     X = data.drop(
         ["Наименование / ФИО", "ОГРН", "ИНН", "reg_date", "lifetime"],
         axis=1,
@@ -152,16 +131,17 @@ def train_test(
     }
     for col, mapping in category_mappings.items():
         X[col] = X[col].map(mapping).fillna(0).astype(int)
+
     X["КатСубМСП"] = X["КатСубМСП"].astype(int)
 
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=123, stratify=y
+    # Instantiate the DatasetManager class
+    dataset_manager = DatasetManager()
+
+    X_train, X_test, y_train, y_test = dataset_manager.fit_transform(
+        X, y, classification
     )
-    X_train, scaler, encoder = preprocess_features(X_train)
-    X_test, _, _ = preprocess_features(X_test, scaler, encoder)
-    save_pickle(cfg.paths.pkls, cfg.files.num_scaler, scaler)
-    save_pickle(cfg.paths.pkls, cfg.files.cat_enc, encoder)
-    save_pickle(cfg.paths.pkls, cfg.files.column_order, X_train.columns.tolist())
+
+    dataset_manager.save_instance(os.path.join(cfg.paths, cfg.files.data_manager))
     return X_train, X_test, y_train, y_test
 
 
@@ -234,8 +214,7 @@ def run_classification(cfg: DictConfig, suffix: str) -> None:
     cfg = update_config_filenames(cfg, "classification", suffix)
 
     logging.info("Running classification models...")
-
-    X_train, X_test, y_train, y_test = train_test(cfg, "classification")
+    X_train, X_test, y_train, y_test = train_test(cfg, True)
     save_pickle(
         cfg.paths.pkls,
         cfg.files.processed_dataset,
@@ -243,7 +222,11 @@ def run_classification(cfg: DictConfig, suffix: str) -> None:
     )
 
     metrics_dict = {}
-    for model_func in [linear_regression, ridge_regression, xgb_regression]:
+    for model_func in [
+        logistic_regression,
+        random_forest_classification,
+        xgb_classification,
+    ]:
         metrics_dict = model_func(cfg, X_train, y_train, X_test, y_test, metrics_dict)
 
     save_metrics_to_parquet(cfg, metrics_dict)

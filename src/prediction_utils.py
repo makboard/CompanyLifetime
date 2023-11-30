@@ -125,7 +125,6 @@ def load_data(cfg: DictConfig) -> Tuple[pd.DataFrame, Any, Any, List[str]]:
     """
     try:
         df = open_parquet(cfg.paths.parquets, cfg.files.companies_feat)
-        df = open_parquet(cfg.paths.parquets, cfg.files.companies_feat)
         scaler = open_pickle(cfg.paths.pkls, cfg.files.num_scaler)
         encoder = open_pickle(cfg.paths.pkls, cfg.files.cat_enc)
         column_order = open_pickle(cfg.paths.pkls, cfg.files.column_order)

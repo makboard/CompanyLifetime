@@ -12,10 +12,7 @@ paths:
 
 files:
   companies_feat: 'companies_feat_open.parquet'
-  num_scaler: 'num_scaler_classification_first_year.pkl'
-  cat_enc: 'cat_enc_classification_first_year.pkl'
-  column_order: 'column_order_classification_first_year.pkl'
-  column_order_regression: 'column_order_regression_first_year.pkl'
+  data_manager: 'data_manager_classification_first_year.pkl'
   regression_model: 'xgb_regressor_first_year.pkl'
   classification_model: 'xgb_classifier_3_first_year.pkl'
   df_prediction: 'predicts.parquet'

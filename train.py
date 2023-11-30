@@ -24,7 +24,7 @@ def run_train(cfg: DictConfig):
     else:
         suffix = "first_year"
     for key in cfg.files:
-        if key not in ["processed_dataset", "num_scaler", "cat_enc", "metrics"]:
+        if key not in ["processed_dataset", "data_manager", "metrics"]:
             cfg.files[key] = update_filename(cfg.files[key], suffix)
 
     if cfg.get("run_regression", False):

@@ -89,7 +89,7 @@ def random_search_grid_cv(classifier, params, X, y) -> dict:
     return grid_search.best_params_
 
 
-def logistic_regression_classification(
+def logistic_regression(
     cfg: DictConfig,
     X_train: pd.DataFrame,
     y_train: pd.DataFrame,

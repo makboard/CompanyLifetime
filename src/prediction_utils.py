@@ -8,12 +8,13 @@ import numpy as np
 from omegaconf import DictConfig
 
 from .pickle_manager import open_pickle, save_parquet, open_parquet
+from .dataset_manager import DatasetManager
 from .utils import preprocess_features
 
 
 def process_row(df) -> Tuple[pd.DataFrame, pd.Series]:
     """
-    Processes a DataFrame by dropping unnecessary columns, modifying specific columns,
+    Processes a DataFrame by modifying specific columns,
     and converting string categories to numerical representations.
 
     Parameters:
@@ -22,19 +23,6 @@ def process_row(df) -> Tuple[pd.DataFrame, pd.Series]:
     Returns:
     Tuple[pd.DataFrame, pd.Series]: Processed DataFrame and series of ogrn values.
     """
-    columns_to_drop = [
-        "Наименование / ФИО",
-        "Дата включения в реестр",
-        "ОГРН",
-        "ИНН",
-        "reg_date",
-        "lifetime",
-        "ogrn",
-        "opf_id",
-        "okved_id",
-        "inn",
-        "full_name",
-    ]
     ogrns = df["ОГРН"]
     df = df.drop(columns_to_drop, axis=1, errors="ignore")
 
@@ -70,7 +58,7 @@ def predict_classification(row: pd.DataFrame, model) -> Tuple[np.ndarray, np.nda
 
 
 def predict_df_classification(
-    df: pd.DataFrame, model, column_order: List[str], scaler, encoder
+    df: pd.DataFrame, model, dataset_manager,
 ) -> pd.DataFrame:
     """
     Applies prediction on an entire DataFrame.
@@ -78,10 +66,8 @@ def predict_df_classification(
     Parameters:
     df (pd.DataFrame): The DataFrame to predict on.
     model: The trained model used for predictions.
-    column_order (List[str]): The expected column order for the model.
-    scaler: The scaler used for preprocessing.
-    encoder: The encoder used for preprocessing.
-
+    dataset_manager: The instance of the DatasetManager class.
+    
     Returns:
     pd.DataFrame: DataFrame containing predictions and probabilities.
     """
@@ -90,12 +76,9 @@ def predict_df_classification(
             logging.info("Some features are NaN and will be filled with 0s.")
             df = df.fillna(0)
         processed_df, ogrns = process_row(df)
-        processed_df = preprocess_features(processed_df, scaler, encoder)[0]
-        missing_columns = set(column_order) - set(processed_df.columns)
-        if missing_columns:
-            logging.info(f"Missing features columns: {missing_columns}")
-            return pd.DataFrame()
+        processed_df = dataset_manager.transform_new_data(processed_df)
 
+        # making predictions
         predictions = model.predict(processed_df)
         probabilities = model.predict_proba(processed_df)
         results = pd.DataFrame(
@@ -125,14 +108,12 @@ def load_data(cfg: DictConfig) -> Tuple[pd.DataFrame, Any, Any, List[str]]:
     """
     try:
         df = open_parquet(cfg.paths.parquets, cfg.files.companies_feat)
-        scaler = open_pickle(cfg.paths.pkls, cfg.files.num_scaler)
-        encoder = open_pickle(cfg.paths.pkls, cfg.files.cat_enc)
-        column_order = open_pickle(cfg.paths.pkls, cfg.files.column_order)
+        dataset_manager = DatasetManager.load_instance(os.path.join(cfg.paths.pkls, cfg.files.data_manager))
     except FileNotFoundError as e:
         logging.error(f"File not found: {e}")
         raise
 
-    return df, scaler, encoder, column_order
+    return df, dataset_manager
 
 
 def run_classification(cfg: DictConfig) -> None:
@@ -144,7 +125,7 @@ def run_classification(cfg: DictConfig) -> None:
     cfg (DictConfig): Configuration object with model and prediction settings.
     """
     logging.info("Collecting data...")
-    df, scaler, encoder, column_order = load_data(cfg)
+    df, dataset_manager = load_data(cfg)
     model = open_pickle(cfg.paths.models, cfg.files.classification_model)
     if cfg.predict_by_ogrn:
         while True:
@@ -167,16 +148,9 @@ def run_classification(cfg: DictConfig) -> None:
                         row = row.fillna(0)
 
                     # Preprocess row
-                    try:
-                        row = process_row(row)[0]
-                        row = preprocess_features(row, scaler, encoder)[0]
-                    except Exception as e:
-                        logging.info(f"An error occurred during processing: {e}")
-                    missing_columns = set(column_order) - set(row.columns)
-                    if missing_columns:
-                        logging.info(f"Missing features columns: {missing_columns}")
-                        break
-                    processed_row = row[column_order]
+                    processed_row = process_row(row)[0]
+                    processed_row = dataset_manager.transform_new_data(processed_row)
+                    
                     # predict
                     prediction = predict_classification(processed_row, model)
                     predicted_class = prediction[0][0]
@@ -207,7 +181,7 @@ def run_classification(cfg: DictConfig) -> None:
     else:
         logging.info("Collecting predictions for the entire DataFrame.")
         prediction_results = predict_df_classification(
-            df, model, column_order, scaler, encoder
+            df, model, dataset_manager
         )
         if not prediction_results.empty:
             logging.info(prediction_results.head())

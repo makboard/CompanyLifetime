@@ -1,8 +1,8 @@
 ---
-predict_by_ogrn: true
+predict_by_ogrn: false
 run_regression: false
 run_classification: true
-save_results: false
+save_results: true
 
 paths:
   parquets: 'data/parquet/'
@@ -14,5 +14,5 @@ files:
   companies_feat: 'companies_feat_open.parquet'
   data_manager: 'data_manager_classification_first_year.pkl'
   regression_model: 'xgb_regressor_first_year.pkl'
-  classification_model: 'xgb_classifier_3_first_year.pkl'
+  classification_model: 'xgb_classifier_first_year.pkl'
   df_prediction: 'predicts.parquet'

@@ -24,7 +24,6 @@ def process_row(df) -> Tuple[pd.DataFrame, pd.Series]:
     Tuple[pd.DataFrame, pd.Series]: Processed DataFrame and series of ogrn values.
     """
     ogrns = df["ОГРН"]
-    df = df.drop(columns_to_drop, axis=1, errors="ignore")
 
     # Modify specific columns
     for col in ["Основной вид деятельности", "Регион"]:

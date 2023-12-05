@@ -25,6 +25,7 @@ def process_row(df) -> Tuple[pd.DataFrame, pd.Series]:
     """
     ogrns = df["ОГРН"]
 
+
     # Modify specific columns
     for col in ["Основной вид деятельности", "Регион"]:
         df[col] = df[col].apply(lambda x: x[1:2] if x[0] == "0" else x[:2])

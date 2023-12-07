@@ -38,6 +38,23 @@ class DatasetManager:
         self.column_order: Optional[List[str]] = None
         self.classification: Optional[bool] = None
         self.original_columns: Optional[List[str]] = None
+        
+    def make_indices(self, df: pd.DataFrame) -> Tuple[List[str], List[str], List[str]]:
+        """
+        Splits feature indices into binary, numerical, and categorical.
+        Parameters:
+        df (pd.DataFrame): DataFrame with features.
+        Returns:
+        Tuple[List[str], List[str], List[str]]: Lists of binary, categorical,
+            and numerical column names.
+        """
+        binary_columns = ["Тип субъекта", "Вновь созданный", "Наличие лицензий"]
+        categorical_columns = ["Основной вид деятельности", "Регион", "КатСубМСП"]
+        binary_indices = df.columns.isin(binary_columns)
+        categorical_indices = df.columns.isin(categorical_columns)
+        numerical_columns = df.columns[~(binary_indices | categorical_indices)]
+
+        return binary_columns, categorical_columns, numerical_columns.tolist()
 
     def create_preprocessor(self, df: pd.DataFrame) -> None:
         """

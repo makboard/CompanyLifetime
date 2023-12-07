@@ -1,11 +1,9 @@
 import logging
 import os
-from typing import List, Optional, Tuple
+from typing import Tuple
 
-import numpy as np
 import pandas as pd
 from omegaconf import DictConfig
-from sklearn import preprocessing
 
 from .classification_models import (logistic_regression,
                                     random_forest_classification,
@@ -16,77 +14,6 @@ from .regression_models import (linear_regression, ridge_regression,
                                 xgb_regression)
 
 logging.basicConfig(level=logging.INFO)
-
-
-def make_indices(df: pd.DataFrame) -> Tuple[List[str], List[str], List[str]]:
-    """
-    Splits feature indices into binary, numerical, and categorical.
-
-    Parameters:
-    X (pd.DataFrame): DataFrame with features.
-
-    Returns:
-    Tuple[List[str], List[str], List[str]]:Lists of binary, categorical, and numerical column names.
-    """
-    binary_columns = ["Тип субъекта", "Вновь созданный", "Наличие лицензий"]
-    categorical_columns = ["Основной вид деятельности", "Регион", "КатСубМСП"]
-    binary_indices = df.columns.isin(binary_columns)
-    categorical_indices = df.columns.isin(categorical_columns)
-    numerical_columns = df.columns[~(binary_indices | categorical_indices)]
-
-    return binary_columns, categorical_columns, numerical_columns.tolist()
-
-
-def preprocess_features(
-    df: pd.DataFrame,
-    scaler: Optional[preprocessing.StandardScaler] = None,
-    encoder: Optional[preprocessing.OneHotEncoder] = None,
-) -> Tuple[pd.DataFrame, preprocessing.StandardScaler, preprocessing.OneHotEncoder]:
-    """
-    Performs scaling and encoding on specific columns.
-
-    Parameters:
-    df (pd.DataFrame): DataFrame with features to preprocess.
-    scaler (preprocessing.StandardScaler, optional): Scaler for numerical features.
-        Defaults to None.
-    encoder (preprocessing.OneHotEncoder, optional): Encoder for categorical features.
-        Defaults to None.
-
-    Returns:
-    Tuple[pd.DataFrame, preprocessing.StandardScaler, preprocessing.OneHotEncoder]:
-        Preprocessed DataFrame, scaler, and encoder.
-    """
-    binary_columns, categorical_columns, numerical_columns = make_indices(df)
-    df_cat = df[categorical_columns]
-    df_num = df[numerical_columns]
-
-    # Scale numerical columns
-    if scaler is None:
-        scaler = preprocessing.StandardScaler()
-        scaler.fit(df_num)
-    df_num = pd.DataFrame(scaler.transform(df_num), columns=numerical_columns)
-
-    # Encode categorical columns
-    if encoder is None:
-        encoder = preprocessing.OneHotEncoder(handle_unknown="ignore")
-        encoder.fit(df_cat)
-    df_cat = pd.DataFrame(
-        encoder.transform(df_cat).toarray().astype(np.int8),
-        columns=encoder.get_feature_names_out(),
-    )
-
-    # Concatenate all columns
-    df_preprocessed = pd.concat(
-        [
-            df[binary_columns].reset_index(drop=True),
-            df_num.reset_index(drop=True),
-            df_cat.reset_index(drop=True),
-        ],
-        axis=1,
-    )
-
-    return df_preprocessed, scaler, encoder
-
 
 def train_test(
     cfg: DictConfig,

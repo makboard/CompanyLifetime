@@ -1,17 +1,12 @@
-from sklearn.linear_model import LinearRegression, Ridge
-from sklearn.model_selection import RandomizedSearchCV
-from sklearn.model_selection import StratifiedKFold
-from sklearn import metrics
-import xgboost
 import numpy as np
 import pandas as pd
+import xgboost
+from omegaconf import DictConfig, OmegaConf
+from sklearn import metrics
+from sklearn.linear_model import LinearRegression, Ridge
+from sklearn.model_selection import RandomizedSearchCV, StratifiedKFold
 
-from omegaconf import OmegaConf, DictConfig
-import sys
-import os
-
-sys.path.append(os.getcwd())
-from src.pickle_manager import save_pickle, open_pickle
+from .pickle_manager import open_pickle, save_pickle
 
 
 def metrics_print(

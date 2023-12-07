@@ -1,21 +1,19 @@
 import logging
 import os
-from typing import Tuple, List, Union, Optional, Literal
-from omegaconf import DictConfig
+from typing import List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
+from omegaconf import DictConfig
 from sklearn import preprocessing
-from sklearn.model_selection import train_test_split
 
-from .pickle_manager import save_pickle, open_parquet, save_parquet
+from .classification_models import (logistic_regression,
+                                    random_forest_classification,
+                                    xgb_classification)
 from .dataset_manager import DatasetManager
-from .classification_models import (
-    logistic_regression,
-    random_forest_classification,
-    xgb_classification,
-)
-from .regression_models import linear_regression, ridge_regression, xgb_regression
+from .pickle_manager import open_parquet, save_parquet, save_pickle
+from .regression_models import (linear_regression, ridge_regression,
+                                xgb_regression)
 
 logging.basicConfig(level=logging.INFO)
 

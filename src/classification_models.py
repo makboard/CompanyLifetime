@@ -1,18 +1,13 @@
-from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import RandomizedSearchCV
-from sklearn.model_selection import StratifiedKFold
-from sklearn import metrics
-import xgboost
 import numpy as np
 import pandas as pd
+import xgboost
+from omegaconf import DictConfig, OmegaConf
+from sklearn import metrics
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import RandomizedSearchCV, StratifiedKFold
 
-from omegaconf import OmegaConf, DictConfig
-import sys
-import os
-
-sys.path.append(os.getcwd())
-from src.pickle_manager import save_pickle
+from .pickle_manager import save_pickle
 
 
 def classification_metrics_print(

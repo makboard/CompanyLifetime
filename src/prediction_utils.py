@@ -9,8 +9,6 @@ from omegaconf import DictConfig
 
 from .pickle_manager import open_pickle, save_parquet, open_parquet
 from .dataset_manager import DatasetManager
-from .utils import preprocess_features
-
 
 def process_row(df) -> Tuple[pd.DataFrame, pd.Series]:
     """

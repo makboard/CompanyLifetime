@@ -1,12 +1,10 @@
 import datetime
+
 import pandas as pd
 from omegaconf import DictConfig
 from tqdm import tqdm
-import sys
-import os
 
-sys.path.append(os.getcwd())
-from src.pickle_manager import open_pickle, save_pickle, open_parquet, save_parquet
+from .pickle_manager import open_parquet, save_parquet
 
 
 def get_date(reg_date: pd.Timestamp, ogrn: int, msp_date: pd.Timestamp) -> pd.Timestamp:

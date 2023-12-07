@@ -1,8 +1,9 @@
-import numpy as np
-from sklearn.metrics import classification_report, confusion_matrix
-import seaborn as sns
-import matplotlib.pyplot as plt
 from typing import List, Tuple
+
+import matplotlib.pyplot as plt
+import numpy as np
+import seaborn as sns
+from sklearn.metrics import classification_report, confusion_matrix
 
 
 def combine_multiple_one_hot_multiclass(

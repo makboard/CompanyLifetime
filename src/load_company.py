@@ -1,14 +1,12 @@
-import pandas as pd
-import os
-import sys
-from tqdm import tqdm
-import numpy as np
 import datetime
 import warnings
-from omegaconf import DictConfig
 
-sys.path.append(os.getcwd())
-from src.pickle_manager import save_pickle, save_parquet
+import numpy as np
+import pandas as pd
+from omegaconf import DictConfig
+from tqdm import tqdm
+
+from .pickle_manager import save_parquet, save_pickle
 
 
 def num_to_date(n: int) -> str:

@@ -1,14 +1,11 @@
-import os
-import sys
-import pandas as pd
-import numpy as np
-
-from omegaconf import DictConfig
 import xml.etree.ElementTree as ET
+
+import numpy as np
+import pandas as pd
+from omegaconf import DictConfig
 from tqdm import tqdm
 
-sys.path.append(os.getcwd())
-from src.pickle_manager import open_parquet, save_parquet
+from .pickle_manager import open_parquet, save_parquet
 
 
 def collect_regional(cfg: DictConfig) -> tuple:

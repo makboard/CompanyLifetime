@@ -1,0 +1,8 @@
+#!/bin/bash
+
+source credentials
+
+docker build -t ${DOCKER_NAME} . \
+        --build-arg DOCKER_NAME=${DOCKER_NAME} \
+        --build-arg DOCKER_USER_ID=$(id -u) \
+        --build-arg DOCKER_GROUP_ID=$(id -g)

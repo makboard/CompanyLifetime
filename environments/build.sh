@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source credentials
+source credentials.sh
 
 docker build -t ${DOCKER_NAME} . \
         --build-arg DOCKER_NAME=${DOCKER_NAME} \

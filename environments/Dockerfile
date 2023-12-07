@@ -56,12 +56,12 @@ RUN curl -sLo ~/miniconda.sh https://repo.anaconda.com/miniconda/Miniconda3-py39
     conda clean -ya
 
 # Configure shell to activate Conda environment by default
-RUN echo "source activate env" > ~/.bashrc
-ENV PATH /opt/conda/envs/env/bin:$PATH
-SHELL ["conda", "run", "-n", "env", "/bin/bash", "-c"]
+ENV PATH $HOME/miniconda/envs/stat_env/bin:$PATH
+RUN echo "source activate stat_env" > ~/.bashrc
+SHELL ["conda", "run", "-n", "stat_env", "/bin/bash", "-c"]
 
-# Optional: Expose any necessary ports
-# EXPOSE <port-number>
+# Optional: Expose any necessary ports dynamically
+# EXPOSE 
 
 # Define default command to run container
-# CMD ["your_command"]
+CMD ["bash"]

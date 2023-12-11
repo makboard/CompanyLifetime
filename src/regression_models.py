@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import xgboost
+from catboost import CatBoostRegressor
 from omegaconf import DictConfig, OmegaConf
 from sklearn import metrics
 from sklearn.linear_model import LinearRegression, Ridge
@@ -201,6 +202,34 @@ def xgb_regression(
 
     save_pickle(cfg.paths.models, cfg.files.xgb_regressor_model, regressor)
     key = "xgb"
+    metrics_dict = metrics_print(
+        y_train, train_predictions, y_test, test_predictions, metrics_dict, key
+    )
+    return metrics_dict
+
+
+def catboost_regression(
+    cfg: DictConfig,
+    X_train: pd.DataFrame,
+    y_train: pd.DataFrame,
+    X_test: pd.DataFrame,
+    y_test: pd.DataFrame,
+    metrics_dict: dict,
+) -> dict:
+    """Catboost Regression"""
+    print("Fitting Catboost Regression...")
+    default_params = cfg.regressors.catboost.default_params
+    regressor = CatBoostRegressor(**default_params)
+    if cfg.enable_optimization:
+        grid_params = cfg.regressors.catboost.grid_params
+        best_params = random_search_grid_cv(regressor, grid_params, X_train, y_train)
+        regressor.set_params(**best_params)
+    regressor.fit(X_train, y_train)
+    train_predictions = regressor.predict(X_train)
+    test_predictions = regressor.predict(X_test)
+
+    save_pickle(cfg.paths.models, cfg.files.catboost_regressor_model, regressor)
+    key = "catboost"
     metrics_dict = metrics_print(
         y_train, train_predictions, y_test, test_predictions, metrics_dict, key
     )

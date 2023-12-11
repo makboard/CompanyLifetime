@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import xgboost
+from catboost import CatBoostClassifier
 from omegaconf import DictConfig, OmegaConf
 from sklearn import metrics
 from sklearn.ensemble import RandomForestClassifier
@@ -162,6 +163,34 @@ def xgb_classification(
 
     save_pickle(cfg.paths.models, cfg.files.xgb_classifier_model, classifier)
     key = "xgb"
+    metrics_dict = classification_metrics_print(
+        y_train, train_predictions, y_test, test_predictions, metrics_dict, key
+    )
+    return metrics_dict
+
+
+def catboost_classification(
+    cfg: DictConfig,
+    X_train: pd.DataFrame,
+    y_train: pd.DataFrame,
+    X_test: pd.DataFrame,
+    y_test: pd.DataFrame,
+    metrics_dict: dict,
+) -> dict:
+    """Catboost Classifier"""
+    print("Fitting Catboost Classifier...")
+    default_params = cfg.classifiers.catboost.default_params
+    classifier = CatBoostClassifier(**default_params)
+    if cfg.enable_optimization:
+        grid_params = cfg.classifiers.catboost.grid_params
+        best_params = random_search_grid_cv(classifier, grid_params, X_train, y_train)
+        classifier.set_params(**best_params)
+    classifier.fit(X_train, y_train)
+    train_predictions = classifier.predict(X_train)
+    test_predictions = classifier.predict(X_test)
+
+    save_pickle(cfg.paths.models, cfg.files.catboost_classifier_model, classifier)
+    key = "catboost"
     metrics_dict = classification_metrics_print(
         y_train, train_predictions, y_test, test_predictions, metrics_dict, key
     )

@@ -10,8 +10,6 @@ from sklearn.compose import ColumnTransformer
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 
-from .utils import make_indices
-
 
 class PassthroughTransformer(TransformerMixin, BaseEstimator):
     def __init__(self):
@@ -63,7 +61,7 @@ class DatasetManager:
         Parameters:
         df (pd.DataFrame): DataFrame used to determine the preprocessing strategy.
         """
-        binary_columns, categorical_columns, numerical_columns = make_indices(df)
+        binary_columns, categorical_columns, numerical_columns = self.make_indices(df)
 
         num_pipeline = Pipeline([("scaler", preprocessing.StandardScaler())])
 

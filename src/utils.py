@@ -5,15 +5,23 @@ from typing import Tuple
 import pandas as pd
 from omegaconf import DictConfig
 
-from .classification_models import (logistic_regression,
-                                    random_forest_classification,
-                                    xgb_classification)
+from .classification_models import (
+    logistic_regression,
+    random_forest_classification,
+    xgb_classification,
+    catboost_classification,
+)
 from .dataset_manager import DatasetManager
 from .pickle_manager import open_parquet, save_parquet, save_pickle
-from .regression_models import (linear_regression, ridge_regression,
-                                xgb_regression)
+from .regression_models import (
+    linear_regression,
+    ridge_regression,
+    xgb_regression,
+    catboost_regression,
+)
 
 logging.basicConfig(level=logging.INFO)
+
 
 def train_test(
     cfg: DictConfig,
@@ -149,6 +157,7 @@ def run_classification(cfg: DictConfig, suffix: str) -> None:
         logistic_regression,
         random_forest_classification,
         xgb_classification,
+        catboost_classification,
     ]:
         metrics_dict = model_func(cfg, X_train, y_train, X_test, y_test, metrics_dict)
 
@@ -172,7 +181,12 @@ def run_regression(cfg: DictConfig, suffix: str) -> None:
     )
 
     metrics_dict = {}
-    for model_func in [linear_regression, ridge_regression, xgb_regression]:
+    for model_func in [
+        linear_regression,
+        ridge_regression,
+        xgb_regression,
+        catboost_regression,
+    ]:
         metrics_dict = model_func(cfg, X_train, y_train, X_test, y_test, metrics_dict)
 
     save_metrics_to_parquet(cfg, metrics_dict)

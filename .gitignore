@@ -125,6 +125,7 @@ celerybeat.pid
 env/
 venv/
 ENV/
+catboost_info
 data/
 results/
 out/

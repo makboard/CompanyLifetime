@@ -1,7 +1,7 @@
 ---
 predict_by_ogrn: false
-run_regression: true
-run_classification: false
+run_regression: false
+run_classification: true
 save_results: true
 
 paths:
@@ -13,6 +13,6 @@ paths:
 files:
   companies_feat: 'companies_feat_open.parquet'
   data_manager: 'data_manager.pkl'
-  regression_model: 'xgb_regressor_first_year.pkl'
+  regression_model: 'catboost_regressor_first_year.pkl'
   classification_model: 'catboost_classifier_first_year.pkl'
   df_prediction: 'predicts.parquet'
